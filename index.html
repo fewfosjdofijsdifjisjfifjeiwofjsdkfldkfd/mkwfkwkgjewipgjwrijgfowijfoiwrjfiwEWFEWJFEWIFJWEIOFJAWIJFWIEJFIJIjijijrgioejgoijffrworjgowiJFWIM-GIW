@@ -501,52 +501,64 @@
 
       @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-#global-notification {
+      #global-notification {
   position: fixed;
-  bottom: 40px;
+  top: 18px;
   left: 50%;
-  transform: translateX(-50%) translateY(200px);
-  width: 580px;
-  max-width: 92vw;
-  background: #000;
-  border: 4px solid #fff;
-  box-shadow: 0 0 0 4px #000, 0 0 0 8px #fff, inset 0 0 0 2px #000;
+  transform: translateX(-50%);
+  background: none;
+  border: none;
+  box-shadow: none;
   color: #fff;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 11px;
-  line-height: 1.9;
+  font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+  font-size: 22px;
+  font-weight: bold;
   z-index: 10000;
-  padding: 18px 22px 14px 22px;
-  transition: transform 0.35s cubic-bezier(.2,.8,.2,1), opacity 0.3s;
-  opacity: 0;
+  text-align: center;
+  white-space: nowrap;
+  text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+  display: none;
   pointer-events: none;
-  image-rendering: pixelated;
 }
 #global-notification.show {
-  transform: translateX(-50%) translateY(0);
-  opacity: 1;
-  pointer-events: auto;
+  display: block;
 }
 #global-notification.hide {
-  transform: translateX(-50%) translateY(200px);
-  opacity: 0;
+  display: none;
 }
 #global-notification .ut-speaker {
-  color: #ff0;
-  font-size: 10px;
-  margin-bottom: 8px;
-  display: block;
-  letter-spacing: 1px;
+  color: #ff4444;
+  font-size: 13px;
+  font-weight: bold;
+  font-family: 'Press Start 2P', monospace;
+  margin-right: 0;
+  text-shadow: 1px 1px 0 #000;
+  flex-shrink: 0;
+}
+#global-notification .ut-divider {
+  width: 3px;
+  align-self: stretch;
+  background: #5a4010;
+  margin: 0 14px;
+  flex-shrink: 0;
+  border-left: 2px solid #e8c86a;
+  border-right: 2px solid #7a6020;
+}
+#global-notification .ut-text-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 #global-notification .ut-text {
-  display: block;
-  min-height: 2.2em;
-  word-break: break-word;
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Press Start 2P', monospace;
+  text-shadow: 1px 1px 0 #000;
 }
 #global-notification .ut-cursor {
   display: inline-block;
-  width: 9px;
-  height: 13px;
+  width: 10px;
+  height: 14px;
   background: #fff;
   vertical-align: middle;
   margin-left: 2px;
@@ -556,18 +568,7 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
-#global-notification .ut-arrow {
-  display: block;
-  text-align: right;
-  color: #fff;
-  font-size: 9px;
-  margin-top: 6px;
-  animation: ut-bounce 0.6s steps(1) infinite;
-}
-@keyframes ut-bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(3px); }
-}
+#global-not
       /* Image popup + flashbang animation */
       #image-popup { position: fixed; inset: 0; display: none; z-index: 10002; }
       #image-popup-backdrop { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; }
@@ -598,9 +599,11 @@
   <audio id="profile-music-player" preload="auto" loop></audio>
     <div id="money-pop">+1 Nexus Credit</div>
     <div id="global-notification">
-      <span class="ut-speaker">* dom :</span>
-      <span class="ut-text" id="ut-notif-text"><span class="ut-cursor"></span></span>
-      <span class="ut-arrow">▼</span>
+      <span class="ut-speaker" id="ut-notif-speaker">dom</span>
+      <div class="ut-divider"></div>
+      <div class="ut-text-wrap">
+        <span class="ut-text" id="ut-notif-text"><span class="ut-cursor"></span></span>
+      </div>
     </div>
     <div id="image-popup" onclick="hideImagePopup()" style="display:none;">
       <div id="image-popup-backdrop" style="position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10002;">
@@ -2591,39 +2594,18 @@ listenTradeInvites();
       }
 
       let globalNotifTimeout;
-let utTypingInterval = null;
 
 function showGlobalNotification(text) {
   const el = document.getElementById("global-notification");
-  const textEl = document.getElementById("ut-notif-text");
-  if (!el || !textEl) return;
-
-  // Clear any previous typing
-  if (utTypingInterval) clearInterval(utTypingInterval);
-  textEl.innerHTML = '<span class="ut-cursor"></span>';
-
+  if (!el) return;
+  el.innerText = "dom : " + text;
   el.classList.remove("hide");
   el.classList.add("show");
-
-  // Typing animation
-  let i = 0;
-  utTypingInterval = setInterval(() => {
-    if (i < text.length) {
-      textEl.innerHTML = text.substring(0, i + 1) + '<span class="ut-cursor"></span>';
-      i++;
-    } else {
-      clearInterval(utTypingInterval);
-      utTypingInterval = null;
-    }
-  }, 72);
-
   clearTimeout(globalNotifTimeout);
-  // Keep open long enough to read the whole message
-  const displayTime = Math.max(5000, text.length * 72 + 2500);
   globalNotifTimeout = setTimeout(() => {
     el.classList.remove("show");
     el.classList.add("hide");
-  }, displayTime);
+  }, 5000);
 }
 
       // PERSONAL NOTIFICATIONS (for things like credits)
@@ -2647,15 +2629,16 @@ function showGlobalNotification(text) {
       }
 
       function showPersonalNotification(text) {
-  // Temporarily change speaker label for personal notifs
-  const speakerEl = document.querySelector("#global-notification .ut-speaker");
-  if (speakerEl) speakerEl.textContent = "* system :";
-  showGlobalNotification(text);
-  // Restore after
-  setTimeout(() => {
-    const s = document.querySelector("#global-notification .ut-speaker");
-    if (s) s.textContent = "* dom :";
-  }, 100);
+  const el = document.getElementById("global-notification");
+  if (!el) return;
+  el.innerText = text;
+  el.classList.remove("hide");
+  el.classList.add("show");
+  clearTimeout(globalNotifTimeout);
+  globalNotifTimeout = setTimeout(() => {
+    el.classList.remove("show");
+    el.classList.add("hide");
+  }, 5000);
 }
 
       function giveCredits() {
@@ -3319,39 +3302,74 @@ if (membersBtn) membersBtn.style.display = "block";
   }
 
   if (bgIds.length > 0) {
-    container.innerHTML += `<div style="grid-column: 1/-1; color: var(--accent); font-size: 11px; letter-spacing: 3px; padding: 5px 0; border-bottom: 1px solid var(--border); margin-bottom: 5px;">🖼️ BACKGROUNDS</div>`;
+    const sep = document.createElement("div");
+    sep.style.cssText = "grid-column:1/-1;color:var(--accent);font-size:11px;letter-spacing:3px;padding:5px 0;border-bottom:1px solid var(--border);margin-bottom:5px;";
+    sep.innerText = "🖼️ BACKGROUNDS";
+    container.appendChild(sep);
+
     bgIds.forEach((id) => {
       const item = getItemById(id);
       if (!item) return;
-      const div = document.createElement("div");
-      div.className = "shop-item owned";
-      div.innerHTML = `
-        <div class="bg-preview" style="background: url('${(item.url || "").replace(/'/g, "%27")}');"></div>
-        <div style="font-weight:bold; font-size:14px; margin-bottom:5px;">${(item.name || id).replace(/</g, "&lt;")}</div>
-        <button class="nexus-btn equip-btn">Equip</button>`;
-      div.querySelector("button").onclick = () => equip(item.url);
-      container.appendChild(div);
+      const sellPrice = Math.max(1, Math.floor((item.price || 0) * 0.9));
+
+      db.ref("users/" + window.myName + "/active_bg").once("value", (bgSnap) => {
+        const isEquipped = bgSnap.val() === item.url;
+        const div = document.createElement("div");
+        div.className = "shop-item owned";
+        div.id = "inv-bg-" + id;
+        div.innerHTML = `
+          <div class="bg-preview" style="background:url('${(item.url || "").replace(/'/g, "%27")}');position:relative;">
+            ${isEquipped ? '<div style="position:absolute;top:6px;right:6px;background:var(--online);color:black;font-size:9px;padding:2px 6px;border-radius:3px;font-weight:bold;">EQUIPPED</div>' : ''}
+          </div>
+          <div style="font-weight:bold;font-size:13px;margin-bottom:4px;">${(item.name || id).replace(/</g, "&lt;")}</div>
+          <div style="font-size:10px;opacity:0.5;margin-bottom:8px;">Sell for ${sellPrice} NC</div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            ${isEquipped
+              ? `<button class="nexus-btn" onclick="unequipBg('${id}')" style="font-size:10px;padding:6px;border-color:#888;color:#aaa;">Unequip</button>`
+              : `<button class="nexus-btn equip-btn" onclick="equip('${(item.url || "").replace(/'/g, "\\'")}')" style="font-size:10px;padding:6px;">Equip</button>`
+            }
+            <button class="nexus-btn" onclick="sellItem('${id}','bg',${sellPrice})" style="font-size:10px;padding:6px;border-color:var(--alert);color:var(--alert);">Sell for ${sellPrice} NC</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
     });
   }
 
   if (musicIds.length > 0) {
     const sep = document.createElement("div");
-    sep.style.cssText = "grid-column: 1/-1; color: var(--accent); font-size: 11px; letter-spacing: 3px; padding: 5px 0; border-bottom: 1px solid var(--border); margin: 10px 0 5px 0;";
+    sep.style.cssText = "grid-column:1/-1;color:var(--accent);font-size:11px;letter-spacing:3px;padding:5px 0;border-bottom:1px solid var(--border);margin:10px 0 5px 0;";
     sep.innerText = "🎵 PROFILE MUSIC";
     container.appendChild(sep);
 
     musicIds.forEach((id) => {
       const item = getItemById(id);
       if (!item) return;
-      const div = document.createElement("div");
-      div.className = "shop-item owned";
-      div.innerHTML = `
-        <div class="bg-preview" style="background:#111; display:flex; align-items:center; justify-content:center; font-size:40px;">🎵</div>
-        <div style="font-weight:bold; font-size:13px; margin-bottom:5px;">${(item.name || id).replace(/</g, "&lt;")}</div>
-        <button class="nexus-btn" onclick="previewMusic('${item.audioUrl}', '${item.id}')" style="margin-bottom:6px; border-color:#888; color:#aaa; font-size:9px;">▶ PREVIEW</button>
-        <button class="nexus-btn equip-btn">Equip Music</button>`;
-      div.querySelectorAll("button")[1].onclick = () => equipMusic(item.audioUrl, item.id);
-      container.appendChild(div);
+      const sellPrice = Math.max(1, Math.floor((item.price || 0) * 0.9));
+
+      db.ref("users/" + window.myName + "/active_music").once("value", (mSnap) => {
+        const isEquipped = mSnap.val() === item.audioUrl;
+        const div = document.createElement("div");
+        div.className = "shop-item owned";
+        div.id = "inv-music-" + id;
+        div.innerHTML = `
+          <div class="bg-preview" style="background:#111;display:flex;align-items:center;justify-content:center;font-size:36px;position:relative;">
+            🎵
+            ${isEquipped ? '<div style="position:absolute;top:6px;right:6px;background:var(--online);color:black;font-size:9px;padding:2px 6px;border-radius:3px;font-weight:bold;">EQUIPPED</div>' : ''}
+          </div>
+          <div style="font-weight:bold;font-size:13px;margin-bottom:4px;">${(item.name || id).replace(/</g, "&lt;")}</div>
+          <div style="font-size:10px;opacity:0.5;margin-bottom:8px;">Sell for ${sellPrice} NC</div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <button class="nexus-btn" onclick="previewMusic('${item.audioUrl}','${item.id}')" style="font-size:10px;padding:6px;border-color:#888;color:#aaa;">▶ Preview</button>
+            ${isEquipped
+              ? `<button class="nexus-btn" onclick="unequipMusic('${id}')" style="font-size:10px;padding:6px;border-color:#888;color:#aaa;">Unequip</button>`
+              : `<button class="nexus-btn equip-btn" onclick="equipMusic('${item.audioUrl}','${item.id}')" style="font-size:10px;padding:6px;">Equip</button>`
+            }
+            <button class="nexus-btn" onclick="sellItem('${id}','music',${sellPrice})" style="font-size:10px;padding:6px;border-color:var(--alert);color:var(--alert);">Sell for ${sellPrice} NC</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
     });
   }
 }
@@ -5138,6 +5156,87 @@ function searchUsers() {
       });
     });
   }, 300);
+}
+// --- UNEQUIP ---
+function unequipBg(id) {
+  db.ref("users/" + window.myName + "/active_bg").remove().then(() => {
+    renderInventory();
+  });
+}
+
+function unequipMusic(id) {
+  stopProfileMusic();
+  db.ref("users/" + window.myName + "/active_music").remove().then(() => {
+    renderInventory();
+  });
+}
+
+// --- SELL ITEMS ---
+function sellItem(id, type, sellPrice) {
+  const item = getItemById(id);
+  const name = item ? item.name : id;
+
+  if (!confirm(`Sell "${name}" for ${sellPrice} NC? This cannot be undone.`)) return;
+
+  // Check if equipped and unequip first
+  const checks = [];
+
+  if (type === "bg") {
+    checks.push(
+      db.ref("users/" + window.myName + "/active_bg").once("value").then(snap => {
+        if (item && snap.val() === item.url) {
+          return db.ref("users/" + window.myName + "/active_bg").remove();
+        }
+      })
+    );
+  } else if (type === "music") {
+    checks.push(
+      db.ref("users/" + window.myName + "/active_music").once("value").then(snap => {
+        if (item && snap.val() === item.audioUrl) {
+          stopProfileMusic();
+          return db.ref("users/" + window.myName + "/active_music").remove();
+        }
+      })
+    );
+  }
+
+  Promise.all(checks).then(() => {
+    // Remove from inventory
+    const newInv = Array.isArray(myInventory)
+      ? myInventory.filter(i => i !== id)
+      : [];
+
+    // Add credits
+    const newBalance = myBalance + sellPrice;
+
+    const updates = {
+      [`users/${window.myName}/inventory`]: newInv,
+      [`users/${window.myName}/balance`]: newBalance,
+    };
+
+    db.ref().update(updates, (err) => {
+      if (err) {
+        alert("Failed to sell item.");
+        return;
+      }
+      myInventory = newInv;
+      myBalance = newBalance;
+      document.getElementById("shop-balance").innerText = myBalance;
+      renderInventory();
+      renderShop();
+
+      // Show money popup
+      const pop = document.getElementById("money-pop");
+      if (pop) {
+        pop.innerText = "+" + sellPrice + " NC from sale!";
+        pop.style.display = "block";
+        setTimeout(() => {
+          pop.style.display = "none";
+          pop.innerText = "+1 Nexus Credit";
+        }, 3000);
+      }
+    });
+  });
 }
     </script>
   </body>
